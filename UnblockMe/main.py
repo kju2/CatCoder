@@ -40,11 +40,117 @@ def main(input_string):
     while len(game) > 0:
         events.append((int(game.pop(0)), int(game.pop(0))))
 
+    game = Game(width, heigh, blocks)
+
     for e in events:
-        if blocks[e[0]].move(blocks, e[1]) == False:
+        if game.move(blocks[e[0]], e[1]) == False:
             return str(True).lower()
 
     return str(False).lower()
+
+def is_moveable(input_string):
+    """
+    >>> print(is_moveable("6 5 3 0 h 2 3 3 1 h 1 5 6 2 v 6 1 3"))
+    1
+    >>> print(is_moveable("6 5 3 0 h 2 3 3 1 h 1 5 6 2 v 6 1 3"))
+    1
+    >>> print(is_moveable("6 6 12 0 h 3 4 2 1 v 1 4 3 2 h 1 3 2 3 v 2 1 2 4 v 4 5 2 5 h 3 3 2 6 h 3 2 2 7 h 4 1 2 8 h 5 6 2 9 v 5 3 3 10 v 6 3 3 11 h 5 2 2"))
+    1 2 3 4 5 6 8 9 10 11
+    >>> print(is_moveable("6 6 12 0 h 3 4 2 1 h 2 3 2 2 h 1 1 3 3 h 1 2 3 4 v 1 3 2 5 v 1 5 2 6 v 3 5 2 7 h 4 6 3 8 v 4 1 2 9 h 4 3 2 10 v 5 4 2 11 v 6 4 2"))
+    1 2 3 4 5 6 7 8 10
+    >>> print(is_moveable("6 6 10 0 h 3 4 2 1 h 5 2 2 2 v 1 5 2 3 h 3 5 3 4 v 4 2 2 5 h 5 6 2 6 v 2 4 3 7 v 6 3 3 8 h 1 3 2 9 h 1 1 2"))
+    1 3 6 7
+    >>> print(is_moveable("12 12 49 0 h 3 4 2 1 h 5 2 2 2 v 1 5 2 3 h 3 5 3 4 v 4 2 2 5 h 5 6 2 6 v 2 4 3 7 v 6 3 3 8 h 2 3 2 9 h 1 1 2 10 v 3 7 2 11 h 3 10 3 12 h 3 11 2 13 h 3 9 2 14 h 5 9 3 15 h 10 9 3 16 h 8 9 2 17 v 1 10 3 18 v 2 11 2 19 h 3 12 2 20 h 6 12 2 21 h 10 12 2 22 v 5 11 2 23 v 6 10 2 24 v 8 10 3 25 v 9 10 3 26 v 12 10 3 27 v 12 4 5 28 v 11 4 5 29 v 10 3 5 30 v 9 4 4 31 h 9 8 2 32 v 8 6 3 33 v 8 2 4 34 v 7 4 5 35 v 11 10 2 36 v 2 7 2 37 v 2 9 2 38 v 1 7 3 39 h 3 6 2 40 v 1 3 2 41 v 9 2 2 42 v 7 1 3 43 v 5 3 2 44 h 3 1 4 45 h 1 2 3 46 h 8 1 5 47 h 11 3 2 48 h 10 2 3"))
+    0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48
+    >>> print(is_moveable("7 5 6 0 h 1 2 2 1 v 3 1 4 2 h 2 5 3 3 h 6 4 2 4 h 4 3 3 5 v 7 1 3"))
+    0 1 4 5
+    >>> print(is_moveable("12 12 23 0 h 8 7 2 1 v 10 7 6 2 v 4 5 4 3 v 2 7 3 4 v 9 1 3 5 v 5 4 3 6 h 7 6 3 7 h 5 8 3 8 h 10 6 2 9 h 2 2 4 10 h 1 3 2 11 v 1 4 4 12 v 3 4 3 13 v 2 4 2 14 v 3 8 3 15 v 4 9 4 16 v 6 9 4 17 h 7 11 3 18 h 7 10 3 19 h 5 7 3 20 h 6 5 5 21 h 6 4 5 22 h 5 3 4"))
+    0 1 4 5 15 16 17 18 19
+    """
+    """
+    """
+    game = input_string.split(' ')
+    blocks = []
+    width = int(game.pop(0))
+    heigh = int(game.pop(0))
+    for i in range(int(game.pop(0))):
+        b_id = int(game.pop(0))
+        orientation = game.pop(0)
+        x = int(game.pop(0)) - 1
+        y = int(game.pop(0)) - 1
+        l = int(game.pop(0))
+        blocks.append(Block(b_id, orientation, x, y, l))
+
+    game = Game(width, heigh, blocks)
+    unmoveable = ""
+    for b in blocks:
+        if game.is_moveable(b) == False:
+            unmoveable += str(b.b_id) + " "
+
+    return unmoveable.rstrip()
+
+class Game:
+
+    def __init__(self, width, height, blocks):
+        self.width = width
+        self.height = height
+        self.blocks = blocks
+
+    def is_moveable(self, b):
+        if self.move(b, 1):
+            self.move(b, -1)
+            return True
+        self.move(b, -1)
+        if self.move(b, -1):
+            self.move(b, 1)
+            return True
+        self.move(b, 1)
+        return False
+
+    def _try_move(self, b):
+        b.move_forward()
+        if self.valid() is False:
+            b.move_backward()
+            return False
+
+        b.move_backward()
+        if self.valid() is False:
+            b.move_forward()
+            return False
+
+        return True
+
+    def valid(self):
+        for b1 in self.blocks:
+            if b1.x < 0 or b1.y < 0:
+                return False
+
+            if b1.orientation == 'h':
+                if b1.x + b1.l > self.width:
+                    return False
+            else:
+                if b1.y + b1.l > self.height:
+                    return False
+
+        for b1 in self.blocks:
+            for b2 in self.blocks:
+                if b1 == b2:
+                    continue
+
+                if b1.clashes_with(b2):
+                    return False
+
+        return True
+
+
+    def move(self, b, steps):
+        movement = steps / abs(steps)
+        for s in range(abs(steps)):
+            b.move(movement)
+            if self.valid() is False:
+                return False
+
+        return True
 
 class Block:
 
@@ -55,61 +161,48 @@ class Block:
         self.y = y
         self.l = l
 
-    def move(self, blocks, steps):
-        old_x = self.x
-        old_y = self.y
+    def move(self, step):
+        movement = 1
+        if step < 0:
+            movement = -1
 
-        #print(self.b_id, steps, self.x, self.y)
-        for i in range(abs(steps)):
+        if self.orientation == 'h':
+            self.x += movement
+        else:
+            self.y += movement
 
-            if self.orientation == 'v':
-                if steps < 0:
-                    self.y -= 1
-                else:
-                    self.y += 1
-            else:
-                if steps < 0:
-                    self.x -= 1
-                else:
-                    self.x += 1
+    def move_forward(self):
+        self.move(1)
 
-            #print(self.b_id, steps, self.x, self.y)
-            for b in blocks:
-                if (self != b and self.overlaps(b)) or (self.x < 0 or self.y < 0):
-                    self.x = old_x
-                    self.y = old_y
-                    #print(b.b_id)
-                    return False
+    def move_backward(self):
+        self.move(-1)
 
-        return True
-
-    def crosses(self, other_x, other_y):
-        curr_x = self.x
-        curr_y = self.y
-
+    def clashes_with(self, other_b):
+        x = self.x
+        y = self.y
         for i in range(self.l):
-            if curr_x == other_x and curr_y == other_y:
+            if other_b.is_on(x, y):
                 return True
 
-            if self.orientation == 'v':
-                curr_y += 1
+            if self.orientation == 'h':
+                x += 1
             else:
-                curr_x += 1
+                y += 1
 
         return False
 
-    def overlaps(self, b2):
-        curr_x = self.x
-        curr_y = self.y
-
+    def is_on(self, other_x, other_y):
+        x = self.x
+        y = self.y
         for i in range(self.l):
-            if b2.crosses(curr_x, curr_y):
+            if x == other_x and y == other_y:
                 return True
+
+            if self.orientation == 'h':
+                x += 1
             else:
-                if self.orientation == 'v':
-                    curr_y += 1
-                else:
-                    curr_x += 1
+                y += 1
+
         return False
 
 def block_overlap(input_string):
@@ -147,7 +240,7 @@ def block_overlap(input_string):
         l = int(input_string.pop(0))
         blocks.append(Block(b_id, orientation, x, y, l))
 
-    return str(blocks[0].overlaps(blocks[1])).lower()
+    return str(blocks[0].clashes_with(blocks[1])).lower()
 
 def parse_input(file_name):
     with open(file_name) as f:
