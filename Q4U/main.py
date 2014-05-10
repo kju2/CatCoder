@@ -5,17 +5,9 @@ def calculate_max_initial_fund(n, funds):
     >>> print(calculate_max_initial_fund(10, [-3, 5, 2, -1, 3, -10, 4, 5, -2, -1]))
     9
     >>> print(calculate_max_initial_fund(*parse_input("input.1")))
-    26314
+    28299447
     >>> print(calculate_max_initial_fund(*parse_input("input.2")))
-    226843
-    >>> print(calculate_max_initial_fund(*parse_input("input.3")))
-    9024192
-    >>> print(calculate_max_initial_fund(*parse_input("input.4")))
-    24023857
-    >>> print(calculate_max_initial_fund(*parse_input("input.5")))
-    25019396
-    >>> print(calculate_max_initial_fund(*parse_input("input.6")))
-    24840859
+    222580924
     """
     max_ending_here = max_so_far = 0
     for x in funds:
