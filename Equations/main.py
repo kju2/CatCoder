@@ -23,7 +23,10 @@ def eval_eq(eq):
     eq = concat_eq(eq)
     if eq.count('=') != 1:
         return False
-    return eval(eq.replace("=", "=="))
+    try:
+        return eval(eq.replace("=", "=="))
+    except:
+        return False
 
 def level1(info):
     """
@@ -214,13 +217,11 @@ def level6(info):
 
 def level7(info):
     """
+    >>> print(level6("93+27-30+16=68"))
+    53+27-30+18=68
+    >>> print(level6("78+23-89+82=94+2-18"))
+    78+23-69+82=94+2+18
     """
-    pass
-
-def parse_input(file_name):
-    with open(file_name) as f:
-        lines = f.read().splitlines()
-
     pass
 
 if __name__ == "__main__":
