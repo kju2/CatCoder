@@ -1,6 +1,9 @@
 from __future__ import print_function
+from itertools import permutations
 
-transformations = {0: [6,9], 1: [], 2: [3], 3: [2, 5], 5: [3], 6: [0, 9], 8: [], 9: [0, 6]}
+change_trans = {0: [6,9], 1: [], 2: [3], 3: [2, 5], 5: [3], 6: [0, 9], 8: [], 9: [0, 6]}
+remove_trans = {6: [5], 7: [1], 8: [0, 6, 9], 9: [3, 5]}
+add_trans = {0: [8], 1: [7], 3: [9], 5: [6, 9], 6: [8], 9: [8]}
 
 def parse_equation(eq_str):
     eq = list(eq_str)
@@ -8,12 +11,16 @@ def parse_equation(eq_str):
         c = eq[i]
         if c in ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'):
             eq[i] = int(c)
+        if c == '=':
+            eq[i] = "=="
     return eq
 
-def concat_eq(eq):
+def concat_eq(eq, clean=False):
     output = ""
     for x in eq:
         output += str(x)
+    if clean:
+        output = output.replace("==", "=")
     return output
 
 def level1(info):
@@ -30,9 +37,9 @@ def level1(info):
     eq = parse_equation(info)
     ls = eq[0]
     rs = eq[2]
-    if ls in transformations and rs in transformations[ls]:
+    if ls in change_trans and rs in change_trans[ls]:
         return str(ls) + '=' + str(ls)
-    if rs in transformations and ls in transformations[rs]:
+    if rs in change_trans and ls in change_trans[rs]:
         return str(rs) + '=' + str(rs)
     return None
 
@@ -49,6 +56,8 @@ def level2(info):
     """
     """
     eq = parse_equation(info)
+    ns = [x for x in eq if isinstance(x, int)]
+
     plus = eq.index('+')
     if plus == 1:
         def check(eq):
@@ -57,12 +66,11 @@ def level2(info):
         def check(eq):
             return eq[2] + eq[4] == eq[0]
 
-    trans_op = []
-    for n in (eq[0], eq[2], eq[4]):
-        for t in transformations[n]:
-            trans_op.append((n, t))
+    trans_ops = []
+    for n in ns:
+        trans_ops.extend(change_transformations(n))
 
-    for (n, t) in trans_op:
+    for (n, t) in trans_ops:
         pos = eq.index(n)
         eq[pos] = t
 
@@ -71,12 +79,55 @@ def level2(info):
         else:
             eq[pos] = n
 
-    return concat_eq(eq)
+    return concat_eq(eq, True)
+
+def change_transformations(n):
+    trans_ops = []
+    if n in change_trans:
+        for t in change_trans[n]:
+            trans_ops.append((n, t))
+    return trans_ops
 
 def level3(info):
     """
+    >>> print(level3("2+6=1"))
+    2+5=7
+    >>> print(level3("8+3=9"))
+    0+9=9
+    >>> print(level3("8-6=-8"))
+    0-8=-8
+    >>> print(level3("1=2+6"))
+    7=2+5
     """
-    pass
+    """
+    """
+    eq = parse_equation(info)
+    ns = [x for x in eq if isinstance(x, int)]
+
+    trans_ops = []
+    for n in ns:
+        trans_ops.extend(change_transformations(n))
+
+    for (r, a) in permutations(ns, 2):
+        if r in remove_trans and a in add_trans:
+            for rt in remove_trans[r]:
+                for at in add_trans[a]:
+                    trans_ops.append((r, rt, a, at))
+
+    orig_eq = eq[:]
+    for op in trans_ops:
+        eq = orig_eq[:]
+        if len(op) == 2:
+            pos = eq.index(op[0])
+            eq[pos] = op[1]
+        else:
+            posR = eq.index(op[0])
+            posA = eq.index(op[2])
+            eq[posR] = op[1]
+            eq[posA] = op[3]
+        if eval(concat_eq(eq)):
+            return concat_eq(eq, True)
+    return None
 
 def level4(info):
     """
