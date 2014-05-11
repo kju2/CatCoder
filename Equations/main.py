@@ -178,8 +178,39 @@ def level5(info):
 
 def level6(info):
     """
+    >>> print(level6("9+8=14"))
+    8+6=14
+    >>> print(level6("14+9=11"))
+    14+3=17
+    >>> print(level6("98-60=-22"))
+    58-80=-22
     """
-    pass
+    """
+    """
+    eq = parse_equation(info)
+    ns = [x for x in eq if isinstance(x, int)]
+
+    trans_ops = []
+    for (r, a) in permutations(eq, 2):
+        if r in remove_trans and a in add_trans:
+            for rt in remove_trans[r]:
+                for at in add_trans[a]:
+                    for indexOfR in (i for i, x in enumerate(eq) if x == r):
+                        for indexOfA in (i for i, x in enumerate(eq) if x == a):
+                            trans_ops.append((indexOfR, rt, indexOfA, at))
+
+    orig_eq = eq[:]
+    for op in trans_ops:
+        eq = orig_eq[:]
+        if len(op) == 2:
+            pos = eq.index(op[0])
+            eq[pos] = op[1]
+        else:
+            eq[op[0]] = op[1]
+            eq[op[2]] = op[3]
+        if eval_eq(eq):
+            return concat_eq(eq)
+    return None
 
 def level7(info):
     """
