@@ -131,8 +131,13 @@ def level3(info):
 
 def level4(info):
     """
+    >>> print(level3("9+2-3-1=8-4"))
+    6+2-3-1=8-4
+    >>> print(level3("9+2-5+7=8-2"))
+    3+2-6+7=8-2
+    >>> print(level3("9+2-3-1=8-4"))
+    6+2-3-1=8-4
     """
-    pass
 
 def level5(info):
     """
